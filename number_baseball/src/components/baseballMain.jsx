@@ -53,6 +53,7 @@ const BaseballMain = () => {
       arr.push(tmp);
     }
     setAnswer(arr);
+    console.log(arr);
   }, []);
 
   useEffect(() => {
@@ -62,7 +63,14 @@ const BaseballMain = () => {
   return (
     <>
       <h1>숫자 야구</h1>
-      {result && <Speak result={result} isOver={isOver} isClear={isClear} />}
+      {result && (
+        <Speak
+          answer={answer}
+          result={result}
+          isOver={isOver}
+          isClear={isClear}
+        />
+      )}
       <BaseballInput prediction={prediction} setPrediction={setPrediction} />
       {!isOver && !isClear && <button onClick={onSubmit}>입력</button>}
       {(isOver || isClear) && <button onClick={restart}>다시하기</button>}

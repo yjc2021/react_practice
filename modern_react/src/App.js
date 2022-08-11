@@ -50,6 +50,12 @@ function App() {
     nextId.current += 1;
   };
 
+  const onRemove = (id) => {
+    setUsers(users.filter((user) => user.id !== id));
+  };
+  // 배열 state에서 요소를 제거할 때 JS 내장 함수 filter()를 사용
+  // filter()의 ()안의 조건이 true인 요소로만 구성된 새 배열을 반환
+  // 배열 state의 불변성을 유지하기 위함이다
   return (
     <>
       <CreateUser
@@ -58,7 +64,7 @@ function App() {
         onChange={onChange}
         onCreate={onCreate}
       />
-      <UserList users={users} />
+      <UserList users={users} onRemove={onRemove} />
     </>
   );
 }

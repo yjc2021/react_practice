@@ -2,20 +2,27 @@ import React, { useEffect } from "react";
 
 const User = ({ user, onRemove, onToggle }) => {
   useEffect(() => {
-    console.log("컴포넌트가 화면에 나타남");
+    console.log("user 값이 설정됨");
+    console.log(user);
     return () => {
-      console.log("컴포넌트가 화면에서 사라짐");
+      console.log("user가 바뀌기 전..");
+      console.log(user);
     };
-  }, []);
+  }, [user]);
 
-  // useEffect의 첫번째 파라미터: 함수
-  // useEffect의 두번째 파라미터: 의존값이 들어있는 배열 (deps)
-  // deps를 비우게 되면 컴포넌트가 처음 나타날 떄 (마운트)에만 useEffect에 등록된 함수가 호출
+  // deps에 특정 의존값을 넣게 되면
+  // 컴포넌트가 처음 마운트될 때, 컴포넌트 값이 바뀔 때
+  // useEffect 첫번째 파라미터 함수가 호출된다
 
-  // cleanup 함수: useEffect에서 반환하는 함수
-  // useEffect에 대한 '뒷정리'를 해준다고 이해
-  // deps가 비어있는 경우에 컴포넌트가 사라질 떄 (언마운트) cleanup 함수 호출
+  // 컴포넌트가 언마운트될 때, 컴포넌트 값이 바뀌기 직전에
+  // useEffect 반환 함수가 호출된다
 
+  // 의존값이 바뀔 때 호출 순서
+  // 이전 state 기준 return 함수 호출
+  // -> 새 state 기준 useEffect 첫번째 파라미터 함수 호출
+
+  // useEffect 안에서 사용하는 상태 및 props는 무조건 deps에 넣어줘야 한다
+  // 원활한 props/상태 update을 위해
   return (
     <div>
       <b

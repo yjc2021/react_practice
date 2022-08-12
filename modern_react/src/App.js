@@ -12,16 +12,13 @@ function App() {
     email: "",
   });
   const { username, email } = inputs;
-  const onChange = useCallback(
-    (e) => {
-      const { name, value } = e.target;
-      setInputs({
-        ...inputs,
-        [name]: value,
-      });
-    },
-    [inputs]
-  );
+  const onChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setInputs((cur) => ({
+      ...cur,
+      [name]: value,
+    }));
+  }, []);
 
   const [users, setUsers] = useState([
     {
@@ -53,14 +50,14 @@ function App() {
       email,
       active: false,
     };
-    setUsers([...users, user]);
+    setUsers((cur) => [...cur, user]);
     //setUsers(users.concat(user));
     setInputs({
       username: "",
       email: "",
     });
     nextId.current += 1;
-  }, [users, username, email]);
+  }, [username, email]);
 
   const onRemove = useCallback(
     (id) => {
@@ -69,18 +66,17 @@ function App() {
     [users]
   );
 
-  const onToggle = useCallback(
-    (id) => {
-      setUsers(
-        users.map((user) =>
-          user.id === id ? { ...user, active: !user.active } : user
-        )
-      );
-    },
-    [users]
-  );
+  const onToggle = useCallback((id) => {
+    setUsers((cur) =>
+      cur.map((user) =>
+        user.id === id ? { ...user, active: !user.active } : user
+      )
+    );
+  }, []);
 
-  const count = useMemo(() => countActiveUsers(users), [users]);
+  const count = useMemo(() => {
+    countActiveUsers(users);
+  }, [users]);
 
   return (
     <>
@@ -97,13 +93,3 @@ function App() {
 }
 
 export default App;
-
-// useCallback: 특정 함수 재사용
-// ** useMemo: 특정 결과값 재사용
-
-// 컴포넌트에서 props가 바뀌지 않으면 Virtual DOM에 새로 렌더링하는 것 조차 하지 않고
-// 컴포넌트 자체를 재사용하는 최적화 작업을 하려면
-// *** 함수 재사용이 필수 ***
-// deps안에 함수에서 사용한느 상태, props를 무조건 포함
-// React.memo를 통한 컴포넌트 렌더링 최적화 작업을 위해
-// 함수 재사용 (useCallback) 필수

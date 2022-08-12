@@ -1,6 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const User = ({ user, onRemove, onToggle }) => {
+  useEffect(() => {
+    console.log("컴포넌트가 화면에 나타남");
+    return () => {
+      console.log("컴포넌트가 화면에서 사라짐");
+    };
+  }, []);
+
+  // useEffect의 첫번째 파라미터: 함수
+  // useEffect의 두번째 파라미터: 의존값이 들어있는 배열 (deps)
+  // deps를 비우게 되면 컴포넌트가 처음 나타날 떄 (마운트)에만 useEffect에 등록된 함수가 호출
+
+  // cleanup 함수: useEffect에서 반환하는 함수
+  // useEffect에 대한 '뒷정리'를 해준다고 이해
+  // deps가 비어있는 경우에 컴포넌트가 사라질 떄 (언마운트) cleanup 함수 호출
+
   return (
     <div>
       <b
@@ -33,11 +48,4 @@ const UserList = ({ users, onRemove, onToggle }) => {
   );
 };
 
-// 동적인 배열을 렌더링해야 할 때에는 JS 배열의 내장함수 map()을 사용
-// 리액트에서 배열을 렌더링 할 때에는 key라는 props를 설정 (고유값)
-// 고유 원소에 key가 있어야만 배열이 업데이트될 때 효율적으로 렌더링
-// 수정되지 않는 기존 값은 그대로 두고 원하는 위치에 내용을 삽입하거나 삭제할 수 있다
-
-// 만약 key값이 없다면 중간의 값이 바뀌었을 때
-// 그 하위 값들이 전부 업데이트되어 리렌더링 되기 때문에 비효율적이다
 export default UserList;

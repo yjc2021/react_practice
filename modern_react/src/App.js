@@ -1,7 +1,6 @@
-import { useCallback, useMemo, useReducer, useRef, useState } from "react";
+import React, { useMemo, useReducer } from "react";
 import UserList from "./userList";
 import CreateUser from "./createUser";
-import useInputs from "./hooks/useInput";
 
 const countActiveUsers = (users) => {
   console.log("활성 사용자 수를 세는 중...");
@@ -56,76 +55,35 @@ const reducer = (state, action) => {
       return state;
   }
 };
+
+export const UserDispatch = React.createContext();
+
 function App() {
-  const [{ username, email }, onChange, reset] = useInputs({
-    username: "",
-    email: "",
-  });
   const [state, dispatch] = useReducer(reducer, initialState);
-  const nextId = useRef(4);
 
   const { users } = state;
 
-  const onCreate = useCallback(() => {
-    dispatch({
-      type: "CREATE_USER",
-      user: {
-        id: nextId.current,
-        username,
-        email,
-      },
-    });
-    reset();
-    nextId.current += 1;
-  }, [username, email, reset]);
-  const onToggle = useCallback((id) => {
-    dispatch({
-      type: "TOGGLE_USER",
-      id,
-    });
-  }, []);
-  const onRemove = useCallback((id) => {
-    dispatch({
-      type: "REMOVE_USER",
-      id,
-    });
-  }, []);
-
   const count = useMemo(() => countActiveUsers(users), [users]);
   return (
-    <>
-      <CreateUser
-        username={username}
-        email={email}
-        onChange={onChange}
-        onCreate={onCreate}
-      />
-      <UserList users={users} onToggle={onToggle} onRemove={onRemove} />
+    <UserDispatch.Provider value={dispatch}>
+      <CreateUser />
+      <UserList users={users} />
       <div>활성사용자 수: {count}</div>
-    </>
+    </UserDispatch.Provider>
   );
 }
 
 export default App;
 
-// useReducer: 상태 업데이트 로직을 컴포넌트로부터 분리
-// useState과 다르게 컴포넌트 바깥에 작성 & 다른 파일에 작성 후 불러와서 사용 가능
-/* function reducer(state, action) {
-    //새로운 상태를 만드는 로직
-    // const nextState=...
-    return nextState;
-  } 
-  */
-// reducer 함수: 현재 state와 action 객체를 파라미터로 받아와서 새로운 state을 반환
-// reducer에서 반환하는 상태는 곧 컴포넌트가 지닐 새로운 state
+// Context API: 프로젝트 안에서 전역적으로 사용할 수 있는 값을 관리
+// '값': 상태, 함수, 외부 라이브러리 인스턴스, DOM ...
 
-// action: 업데이트를 위한 정보
-// type값을 지닌 객체 형태로 사용
+// const UserDispatch = React.createContext(null);
+// <UserDispatch.Provider value={dispatch}>...</UserDispatch.Provider>
+// Context 안에 Provider 컴포넌트를 통하여 Context의 값을 정하고
+// 전역적으로 사용할 겂을 value로 지정한다
+// Provider에 의하여 감싸여진 컴포넌트 중 어디서든지 Context의 값 바로 조회 가능
 
-// const [state, dispatch] = useReducer(reducer, initialState);
-// state은 앞으로 컴포넌트에서 사용할 상태
-// dispatch: 액션을 발생시키는 함수
-
-// useReducer vs useState?
-// useState: 컴포넌트에서 관리하는 단순한 값 (숫자, 문자열, boolean ...)
-// useReducer: 컴포넌트에서 관리하는 값이 여러개가 되어서 복잡한 구조의 상태
+// useReducer의 dispatch를 Context API를 사용해서 전역적으로 사용
+// 여러 자식 컴포넌트를 거쳐 컴포넌트에게 함수를 전달해줘야 하는 상황에서
+// 코드의 구조가 훨씬 깔끔해짐

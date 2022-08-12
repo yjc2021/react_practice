@@ -26,12 +26,12 @@ function useInputs(initialForm) {
       value,
     });
   }, []);
-  const reset = useCallback(() => {
+  const onReset = useCallback(() => {
     dispatch({
       type: "RESET",
     });
   }, []);
-  return [form, onChange, reset];
+  return [form, onChange, onReset];
 }
 
 export default useInputs;

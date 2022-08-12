@@ -1,7 +1,11 @@
-import { useRef, useState } from "react";
-import InputSample from "./inputSample";
+import { useMemo, useRef, useState } from "react";
 import UserList from "./userList";
 import CreateUser from "./createUser";
+
+const countActiveUsers = (users) => {
+  console.log("활성 사용자 수를 세는 중...");
+  return users.filter((user) => user.active).length;
+};
 function App() {
   const [inputs, setInputs] = useState({
     username: "",
@@ -65,8 +69,16 @@ function App() {
       )
     );
   };
-  // 불변성을 지키면서 배열 state의 항목을 수정할 때도
-  // map 함수를 사용한다
+
+  const count = useMemo(() => countActiveUsers(users), [users]);
+  // Memo는 'memoized' (이전에 계산한 값을 재사용) 줄임말
+  // useMemo 첫번째 파라미터: 함수
+  // 두번째 파라미터: deps 배열
+
+  // 성능 최적화에 사용
+  // 두번째 인자에 넣어준 deps의 의존값이 바뀔 때에만 함수가 실행
+  // 그렇지 않은 경우 이전의 값을 재사용한다
+
   return (
     <>
       <CreateUser
@@ -76,12 +88,9 @@ function App() {
         onCreate={onCreate}
       />
       <UserList users={users} onRemove={onRemove} onToggle={onToggle} />
+      <div>활성사용자 수: {count}</div>
     </>
   );
 }
 
 export default App;
-
-// 불변성을 지키면서 배열 state에 새 항목을 추가하는 방법
-// 1. spread (...) 연산자 사용: (...배열이름)
-// 2. concat 함수를 사용: (배열이름.concat(합치고 싶은 배열))

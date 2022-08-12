@@ -2,27 +2,13 @@ import React, { useEffect } from "react";
 
 const User = ({ user, onRemove, onToggle }) => {
   useEffect(() => {
-    console.log("user 값이 설정됨");
     console.log(user);
-    return () => {
-      console.log("user가 바뀌기 전..");
-      console.log(user);
-    };
-  }, [user]);
+  });
 
-  // deps에 특정 의존값을 넣게 되면
-  // 컴포넌트가 처음 마운트될 때, 컴포넌트 값이 바뀔 때
-  // useEffect 첫번째 파라미터 함수가 호출된다
-
-  // 컴포넌트가 언마운트될 때, 컴포넌트 값이 바뀌기 직전에
-  // useEffect 반환 함수가 호출된다
-
-  // 의존값이 바뀔 때 호출 순서
-  // 이전 state 기준 return 함수 호출
-  // -> 새 state 기준 useEffect 첫번째 파라미터 함수 호출
-
-  // useEffect 안에서 사용하는 상태 및 props는 무조건 deps에 넣어줘야 한다
-  // 원활한 props/상태 update을 위해
+  // deps를 생략한다면 컴포넌트가 리렌더링될 때마다 useEffect가 호출된다
+  // ** 리액트 컴포넌트는 기본적으로 부코 컴포넌트가 리렌더링되면 자식 컴포넌트도 리렌더링된다(자식 컴포넌트 값이 바뀌지 않았더라도)
+  // 실제 DOM에 변화가 반영되는 곳은 바뀐 내용이 있는 컴포넌트이지만
+  // VirtualDOM에는 모든 걸 다시 렌더링하고 있어 리소스 낭비
   return (
     <div>
       <b

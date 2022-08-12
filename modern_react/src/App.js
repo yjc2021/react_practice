@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useReducer, useRef, useState } from "react";
 import UserList from "./userList";
 import CreateUser from "./createUser";
 
@@ -6,21 +6,13 @@ const countActiveUsers = (users) => {
   console.log("활성 사용자 수를 세는 중...");
   return users.filter((user) => user.active).length;
 };
-function App() {
-  const [inputs, setInputs] = useState({
+
+const initialState = {
+  inputs: {
     username: "",
     email: "",
-  });
-  const { username, email } = inputs;
-  const onChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setInputs((cur) => ({
-      ...cur,
-      [name]: value,
-    }));
-  }, []);
-
-  const [users, setUsers] = useState([
+  },
+  users: [
     {
       id: 1,
       username: "velopert",
@@ -39,45 +31,79 @@ function App() {
       email: "liz@example.com",
       active: false,
     },
-  ]);
-
+  ],
+};
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "CHANGE_INPUT":
+      return {
+        ...state,
+        inputs: {
+          ...state.inputs,
+          [action.name]: action.value,
+        },
+      };
+    case "CREATE_USER":
+      return {
+        inputs: initialState.inputs,
+        users: state.users.concat(action.user),
+      };
+    case "TOGGLE_USER":
+      return {
+        ...state,
+        users: state.users.map((user) =>
+          user.id === action.id ? { ...user, active: !user.active } : user
+        ),
+      };
+    case "REMOVE_USER":
+      return {
+        ...state,
+        users: state.users.filter((user) => user.id !== action.id),
+      };
+    default:
+      return state;
+  }
+};
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
   const nextId = useRef(4);
 
+  const { users } = state;
+  const { username, email } = state.inputs;
+
+  const onChange = useCallback((e) => {
+    const { name, value } = e.target;
+    dispatch({
+      type: "CHANGE_INPUT",
+      name,
+      value,
+    });
+  }, []);
   const onCreate = useCallback(() => {
-    const user = {
-      id: nextId.current,
-      username,
-      email,
-      active: false,
-    };
-    setUsers((cur) => [...cur, user]);
-    //setUsers(users.concat(user));
-    setInputs({
-      username: "",
-      email: "",
+    dispatch({
+      type: "CREATE_USER",
+      user: {
+        id: nextId.current,
+        username,
+        email,
+      },
     });
     nextId.current += 1;
   }, [username, email]);
-
-  const onRemove = useCallback(
-    (id) => {
-      setUsers(users.filter((user) => user.id !== id));
-    },
-    [users]
-  );
-
   const onToggle = useCallback((id) => {
-    setUsers((cur) =>
-      cur.map((user) =>
-        user.id === id ? { ...user, active: !user.active } : user
-      )
-    );
+    dispatch({
+      type: "TOGGLE_USER",
+      id,
+    });
+  }, []);
+  const onRemove = useCallback((id) => {
+    dispatch({
+      type: "REMOVE_USER",
+      id,
+    });
   }, []);
 
-  const count = useMemo(() => {
-    countActiveUsers(users);
-  }, [users]);
-
+  const count = useMemo(() => countActiveUsers(users), [users]);
   return (
     <>
       <CreateUser
@@ -86,10 +112,32 @@ function App() {
         onChange={onChange}
         onCreate={onCreate}
       />
-      <UserList users={users} onRemove={onRemove} onToggle={onToggle} />
+      <UserList users={users} onToggle={onToggle} onRemove={onRemove} />
       <div>활성사용자 수: {count}</div>
     </>
   );
 }
 
 export default App;
+
+// useReducer: 상태 업데이트 로직을 컴포넌트로부터 분리
+// useState과 다르게 컴포넌트 바깥에 작성 & 다른 파일에 작성 후 불러와서 사용 가능
+/* function reducer(state, action) {
+    //새로운 상태를 만드는 로직
+    // const nextState=...
+    return nextState;
+  } 
+  */
+// reducer 함수: 현재 state와 action 객체를 파라미터로 받아와서 새로운 state을 반환
+// reducer에서 반환하는 상태는 곧 컴포넌트가 지닐 새로운 state
+
+// action: 업데이트를 위한 정보
+// type값을 지닌 객체 형태로 사용
+
+// const [state, dispatch] = useReducer(reducer, initialState);
+// state은 앞으로 컴포넌트에서 사용할 상태
+// dispatch: 액션을 발생시키는 함수
+
+// useReducer vs useState?
+// useState: 컴포넌트에서 관리하는 단순한 값 (숫자, 문자열, boolean ...)
+// useReducer: 컴포넌트에서 관리하는 값이 여러개가 되어서 복잡한 구조의 상태

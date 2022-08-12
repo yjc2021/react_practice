@@ -20,16 +20,19 @@ function App() {
       id: 1,
       username: "velopert",
       email: "public.velopert@gmail.com",
+      active: true,
     },
     {
       id: 2,
       username: "tester",
       email: "tester@example.com",
+      active: false,
     },
     {
       id: 3,
       username: "liz",
       email: "liz@example.com",
+      active: false,
     },
   ]);
 
@@ -40,6 +43,7 @@ function App() {
       id: nextId.current,
       username,
       email,
+      active: false,
     };
     setUsers([...users, user]);
     //setUsers(users.concat(user));
@@ -53,9 +57,16 @@ function App() {
   const onRemove = (id) => {
     setUsers(users.filter((user) => user.id !== id));
   };
-  // 배열 state에서 요소를 제거할 때 JS 내장 함수 filter()를 사용
-  // filter()의 ()안의 조건이 true인 요소로만 구성된 새 배열을 반환
-  // 배열 state의 불변성을 유지하기 위함이다
+
+  const onToggle = (id) => {
+    setUsers(
+      users.map((user) =>
+        user.id === id ? { ...user, active: !user.active } : user
+      )
+    );
+  };
+  // 불변성을 지키면서 배열 state의 항목을 수정할 때도
+  // map 함수를 사용한다
   return (
     <>
       <CreateUser
@@ -64,7 +75,7 @@ function App() {
         onChange={onChange}
         onCreate={onCreate}
       />
-      <UserList users={users} onRemove={onRemove} />
+      <UserList users={users} onRemove={onRemove} onToggle={onToggle} />
     </>
   );
 }

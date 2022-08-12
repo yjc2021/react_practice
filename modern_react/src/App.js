@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import UserList from "./userList";
 import CreateUser from "./createUser";
 
@@ -12,13 +12,17 @@ function App() {
     email: "",
   });
   const { username, email } = inputs;
-  const onChange = (e) => {
-    const { name, value } = e.target;
-    setInputs({
-      ...inputs,
-      [name]: value,
-    });
-  };
+  const onChange = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+      setInputs({
+        ...inputs,
+        [name]: value,
+      });
+    },
+    [inputs]
+  );
+
   const [users, setUsers] = useState([
     {
       id: 1,
@@ -42,7 +46,7 @@ function App() {
 
   const nextId = useRef(4);
 
-  const onCreate = () => {
+  const onCreate = useCallback(() => {
     const user = {
       id: nextId.current,
       username,
@@ -56,28 +60,27 @@ function App() {
       email: "",
     });
     nextId.current += 1;
-  };
+  }, [users, username, email]);
 
-  const onRemove = (id) => {
-    setUsers(users.filter((user) => user.id !== id));
-  };
+  const onRemove = useCallback(
+    (id) => {
+      setUsers(users.filter((user) => user.id !== id));
+    },
+    [users]
+  );
 
-  const onToggle = (id) => {
-    setUsers(
-      users.map((user) =>
-        user.id === id ? { ...user, active: !user.active } : user
-      )
-    );
-  };
+  const onToggle = useCallback(
+    (id) => {
+      setUsers(
+        users.map((user) =>
+          user.id === id ? { ...user, active: !user.active } : user
+        )
+      );
+    },
+    [users]
+  );
 
   const count = useMemo(() => countActiveUsers(users), [users]);
-  // Memo는 'memoized' (이전에 계산한 값을 재사용) 줄임말
-  // useMemo 첫번째 파라미터: 함수
-  // 두번째 파라미터: deps 배열
-
-  // 성능 최적화에 사용
-  // 두번째 인자에 넣어준 deps의 의존값이 바뀔 때에만 함수가 실행
-  // 그렇지 않은 경우 이전의 값을 재사용한다
 
   return (
     <>
@@ -94,3 +97,13 @@ function App() {
 }
 
 export default App;
+
+// useCallback: 특정 함수 재사용
+// ** useMemo: 특정 결과값 재사용
+
+// 컴포넌트에서 props가 바뀌지 않으면 Virtual DOM에 새로 렌더링하는 것 조차 하지 않고
+// 컴포넌트 자체를 재사용하는 최적화 작업을 하려면
+// *** 함수 재사용이 필수 ***
+// deps안에 함수에서 사용한느 상태, props를 무조건 포함
+// React.memo를 통한 컴포넌트 렌더링 최적화 작업을 위해
+// 함수 재사용 (useCallback) 필수

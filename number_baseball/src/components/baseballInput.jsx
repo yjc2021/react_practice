@@ -1,6 +1,7 @@
 import React from "react";
 
 const BaseballInput = ({ prediction, setPrediction }) => {
+  console.log("input");
   const onChange = (e) => {
     setPrediction(e.target.value);
   };
@@ -17,4 +18,4 @@ const BaseballInput = ({ prediction, setPrediction }) => {
   );
 };
 
-export default BaseballInput;
+export default React.memo(BaseballInput);

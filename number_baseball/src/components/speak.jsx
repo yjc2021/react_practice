@@ -11,4 +11,4 @@ const Speak = ({ answer, result, isOver, isClear }) => {
   );
 };
 
-export default Speak;
+export default React.memo(Speak);

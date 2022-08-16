@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useEffect } from "react";
 import { useRef } from "react";
 import BaseballHistory from "./baseballHistory";
@@ -13,34 +13,37 @@ const BaseballMain = () => {
   const [result, setResult] = useState();
   const [isOver, setIsOver] = useState(false);
   const [isClear, setIsClear] = useState(false);
-  const restart = () => {
+  const restart = useCallback(() => {
     setIsOver(false);
     setIsClear(false);
     setHistory([]);
     setPrediction("");
     setResult();
     setAnswer([]);
-  };
-  const compareAnswer = (entry) => {
-    let s = 0;
-    let b = 0;
-    for (let i = 0; i < 4; i++) {
-      const t = entry.findIndex((x) => x === answer[i]);
-      if (t !== -1) {
-        i === t ? s++ : b++;
+  }, []);
+  const compareAnswer = useCallback(
+    (entry) => {
+      let s = 0;
+      let b = 0;
+      for (let i = 0; i < 4; i++) {
+        const t = entry.findIndex((x) => x === answer[i]);
+        if (t !== -1) {
+          i === t ? s++ : b++;
+        }
       }
-    }
-    s === 4 && setIsClear(true);
-    return { s: s, b: b };
-  };
-  const onSubmit = () => {
+      s === 4 && setIsClear(true);
+      return { s: s, b: b };
+    },
+    [answer]
+  );
+  const onSubmit = useCallback(() => {
     const a = prediction.split("");
     setPrediction("");
     const newEntry = a.map((item) => parseInt(item));
     const s = speak(compareAnswer(newEntry));
-    setHistory([...history, s]);
+    setHistory((cur) => [...cur, s]);
     setResult(s);
-  };
+  }, [compareAnswer, prediction]);
   const speak = (entry) => {
     const { s, b } = entry;
     return `${s}스트라이크 ${b}볼`;
@@ -59,7 +62,6 @@ const BaseballMain = () => {
   useEffect(() => {
     if (history.length === MAX_HITS.current) setIsOver(true);
   }, [history]);
-
   return (
     <>
       <h1>숫자 야구</h1>
@@ -79,4 +81,4 @@ const BaseballMain = () => {
   );
 };
 
-export default BaseballMain;
+export default React.memo(BaseballMain);

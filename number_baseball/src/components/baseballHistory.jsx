@@ -1,6 +1,7 @@
 import React from "react";
 
 const BaseballHistory = ({ history }) => {
+  console.log("history");
   return (
     <div>
       <h3>히스토리</h3>
@@ -11,4 +12,4 @@ const BaseballHistory = ({ history }) => {
   );
 };
 
-export default BaseballHistory;
+export default React.memo(BaseballHistory);
